@@ -2,7 +2,6 @@ import os
 from pathlib import Path
 
 import psycopg
-from psycopg import sql
 
 from dotenv import load_dotenv
 
@@ -25,29 +24,43 @@ def get_connection():
     return psycopg.connect(database_url)
 
 
-def fetch_all():
-    """Retrieve every row from the robot_readings table as a pandas DataFrame."""
-
-    query = sql.SQL("SELECT * FROM robot_readings").format(
-        table=sql.Identifier("robot_readings")
-    )
-
+def _query(sql_text, params=None):
+    """Run a SELECT and return the result as a DataFrame."""
     with get_connection() as connection:
         with connection.cursor() as cursor:
-            cursor.execute(query)
-
+            cursor.execute(sql_text, params)
             rows = cursor.fetchall()
             column_names = [column.name for column in cursor.description]
 
     return pd.DataFrame(rows, columns=column_names)
 
 
+def fetch_all():
+    """Retrieve every row from the robot_readings table as a pandas DataFrame."""
+    return _query("SELECT * FROM robot_readings ORDER BY reading_time")
+
+
+def fetch_since(last_ts):
+    """Rows newer than last_ts, for the dashboard's polling loop.
+
+    Passing None returns the whole table, so a caller can use this for its
+    first poll without special-casing the start.
+    """
+    if last_ts is None:
+        return fetch_all()
+
+    return _query(
+        "SELECT * FROM robot_readings WHERE reading_time > %s ORDER BY reading_time",
+        (last_ts,),
+    )
+
+
 def insert_reading(record: dict):
-    """Insert one CSV-shaped reading into robot_readings"""
+    """Insert one reading. Keys must match the column names: trait, axis_1..axis_8, reading_time."""
     values = (
-        record["Trait"],
-        *(record[f"Axis #{i}"] for i in range(1, 9)),
-        record["Time"],
+        record["trait"],
+        *(record[f"axis_{i}"] for i in range(1, 9)),
+        record["reading_time"],
     )
     with get_connection() as connection:
         with connection.cursor() as cursor:

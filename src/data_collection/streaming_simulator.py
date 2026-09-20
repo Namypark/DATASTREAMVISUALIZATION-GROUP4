@@ -17,12 +17,12 @@ OUTPUT_COLUMNS = ["Trait", *AXIS_COLUMNS, "Time"]
 class StreamingSimulator:
     """Replay robot readings as individual controller messages."""
 
-    def __init__(self, csv_path: str | Path, speed_factor: float = 0.15) -> None:
-        if speed_factor < 0:
-            raise ValueError("speed_factor must be non-negative")
+    def __init__(self, csv_path: str | Path, interval: float = 2.0) -> None:
+        if interval < 0:
+            raise ValueError("interval must be non-negative")
 
         self.csv_path = Path(csv_path)
-        self.speed_factor = speed_factor
+        self.interval = interval
         self._data = self._read_csv(self.csv_path)
         self._position = 0
 
@@ -71,8 +71,8 @@ class StreamingSimulator:
             if on_tick is not None:
                 on_tick(record)
             emitted.append(record)
-            if self.speed_factor and step < n_steps - 1:
-                time.sleep(2 * self.speed_factor)
+            if self.interval and step < n_steps - 1:
+                time.sleep(self.interval)
         return emitted
 
     def bulk_load(

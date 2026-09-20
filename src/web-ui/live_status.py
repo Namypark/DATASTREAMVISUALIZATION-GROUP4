@@ -102,7 +102,7 @@ def register_callbacks(app: Dash) -> None:
             return [], "Live refresh resumed.", False
 
         # Interval tick: append newly-arrived rows, keep only the rolling window.
-        new_rows = db.fetch_since(None)
+        new_rows = db.fetch_next_batch()
         if new_rows.empty:
             raise PreventUpdate
 
