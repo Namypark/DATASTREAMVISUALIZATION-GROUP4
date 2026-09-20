@@ -15,6 +15,7 @@ charset-normalizer==3.5.1
 comm==0.2.3
 contourpy==1.4.0
 cycler==0.12.1
+dash==2.18.2
 debugpy==1.8.22
 defusedxml==0.7.1
 executing==2.2.1
@@ -82,6 +83,8 @@ pyparsing==3.3.2
 python-dateutil==2.9.0.post0
 python-json-logger==4.2.0
 pyyaml==6.0.3
+psycopg2-binary==2.9.10
+python-dotenv==1.0.1
 pyzmq==27.2.0
 referencing==0.37.0
 requests==2.34.2

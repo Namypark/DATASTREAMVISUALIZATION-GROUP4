@@ -1,0 +1,22 @@
+"""Entry point for the robot predictive-maintenance web dashboard.
+
+MVP scope: a single "Live Status" tab (see live_status.py). Run directly:
+
+    python src/web-ui/web-ui-interface.py
+"""
+
+from dash import Dash, html
+
+import live_status
+
+app = Dash(__name__)
+app.layout = html.Div(
+    [
+        html.H1("Robot Health Monitor"),
+        live_status.layout,
+    ]
+)
+live_status.register_callbacks(app)
+
+if __name__ == "__main__":
+    app.run(debug=True)
