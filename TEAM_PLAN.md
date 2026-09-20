@@ -101,10 +101,13 @@ No hard clock per phase — each day is a checkpoint so no one is stuck waiting 
 
 ### 4.2 StreamingSimulator — Davis
 
-- `StreamingSimulator(csv_path, speed_factor=0.15)`
+- `StreamingSimulator(csv_path, interval=2.0)` — the default **is** the instruction ("a single reading every 2 seconds"). Pass a smaller `interval` only to speed up testing.
 - `nextDataPoint()` — returns the next row as a dict/Series, advances an internal pointer, signals end-of-file at exhaustion.
-- `run(n_steps, on_tick)` — drives `n_steps` calls at the accelerated `speed_factor` delay, invoking a callback each tick (the callback does the DB insert + chart update).
+- `run(n_steps, on_tick)` — drives `n_steps` calls spaced `interval` seconds apart, invoking a callback each tick (the callback does the DB insert + chart update).
+
 - `bulk_load(csv_path)` — separate no-delay path for the full-dataset backfill used by the summary chart and predictive module.
+
+> **Why a slice, not the whole file:** 39,672 readings × 2s = **22 hours**, which is the real span of the data. The notebook streams ~30 readings live (about a minute) to demonstrate the mechanism at the specified interval; the full dataset reaches the database through the separate bulk load. State this explicitly in the Step 2 markdown.
 
 ### 4.3 Dashboard — Carlos
 
@@ -164,7 +167,7 @@ The defensible conclusion is that **no maintenance notification is warranted fro
 ```text
 CSV file
   │
-  ├─▶ StreamingSimulator.run(n_steps, on_tick)   [demo slice, speed_factor delay]
+  ├─▶ StreamingSimulator.run(n_steps, on_tick)   [~30 readings live, interval=2.0s]
   │        on_tick(record):
   │          ├─▶ insert_reading(record)          → Neon `robot_readings`
   │          └─▶ dashboard.update(record)         → live matplotlib refresh

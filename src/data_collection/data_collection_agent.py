@@ -1,5 +1,3 @@
-
-
 import os
 from pathlib import Path
 
@@ -10,12 +8,12 @@ from dotenv import load_dotenv
 
 import pandas as pd
 
-
 project_root = Path(__file__).resolve().parents[2]
+load_dotenv(project_root / ".env")
+
 
 def get_connection():
     """Return a secure connection to the Neon PostgreSQL database."""
-    load_dotenv(project_root / ".env.local")
 
     database_url = os.getenv("DATABASE_URL")
 
@@ -25,18 +23,6 @@ def get_connection():
         )
 
     return psycopg.connect(database_url)
-
-
-# Example: read the first five rows from the newly created students table.
-with get_connection() as connection:
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT * FROM robot_readings LIMIT 5;")
-        records = cursor.fetchall()
-
-        for record in records:
-            print(record)
-
-
 
 
 def fetch_all():
@@ -56,8 +42,20 @@ def fetch_all():
     return pd.DataFrame(rows, columns=column_names)
 
 
-# Example usage
-readings_df = fetch_all()
-
-print(readings_df)
-print(readings_df.head(5))
+def insert_reading(record: dict):
+    """Insert one CSV-shaped reading into robot_readings"""
+    values = (
+        record["Trait"],
+        *(record[f"Axis #{i}"] for i in range(1, 9)),
+        record["Time"],
+    )
+    with get_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """INSERT INTO robot_readings
+                       (trait, axis_1, axis_2, axis_3, axis_4,
+                        axis_5, axis_6, axis_7, axis_8, reading_time)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                values,
+            )
+        connection.commit()
