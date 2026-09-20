@@ -11,3 +11,6 @@ wheels/
 .env
 .env.local
 .config
+
+# Local working notes
+src/web-ui/PLAN_EXEC.md
