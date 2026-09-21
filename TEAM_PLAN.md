@@ -1,7 +1,7 @@
 # Data Stream Visualization Workshop — Team Implementation Plan
 
 **Use case:** Manufacturing Robot Predictive Maintenance
-**Team:** Namy, Davis, Carlos, Rangeetha
+**Team:** Nnamdi, Davis, Carlos, Rangeetha
 **Deadline:** Monday, 2026-09-21
 **Repo:** [https://github.com/Namypark/DATASTREAMVISUALIZATION-GROUP4](https://github.com/Namypark/DATASTREAMVISUALIZATION-GROUP4)
 **Deliverable:** One completed Jupyter Notebook pushed to the repo above, plus an email to the instructor with the `.git` link.
