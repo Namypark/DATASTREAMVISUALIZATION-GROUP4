@@ -117,8 +117,8 @@ flags readings that suggest something is going wrong.
 - **The robot is idle 64.2% of the time.** Any average that includes idle readings measures the
   production schedule rather than the machine.
 - **Two joints do most of the work.** Axes 2 and 3 draw 62% of all current.
-- **There is a three-hour production stoppage** on 18 October (03:00–06:00 UTC), during which the
-  controller kept reporting normally. A stopped production line and a failed monitoring system look
+- **There are five production stoppages**, the longest 2 hours 28 minutes on 18 October
+  (03:10–05:37 UTC), during which the controller kept reporting normally. A stopped production line and a failed monitoring system look
   identical on a current chart and mean entirely different things.
 - **No degradation is present.** Total active current moves from 28.5A to 28.3A across the window —
   0.6%, which is noise. 22.5 hours is far too short to reveal wear that develops over months. What
@@ -130,7 +130,7 @@ flags readings that suggest something is going wrong.
   Maintenance attention belongs on axes 2 and 3.
 - **The detector needed correcting before its numbers were trustworthy.** The rolling window
   originally included the reading being tested, which capped every score at `(n-1)/√n` = 5.2947, and
-  a baseline that spanned a three-hour stoppage was not "recent behaviour" in any useful sense.
+  a baseline that spanned a two-and-a-half-hour stoppage was not "recent behaviour" in any useful sense.
   Both versions produced plausible-looking output — see the Step 4 talking point.
 
 Full reasoning is in the notebook's talking points and findings cells.
@@ -141,6 +141,8 @@ Full reasoning is in the notebook's talking points and findings cells.
 | ---------------------------------------- | -------------------------------------------------- |
 | `DataStreamVisualization_Workshop.ipynb` | Our submission — all four steps, code and write-up |
 | `instructor_material.ipynb`              | The instructor's brief, kept for reference         |
+
+See `METHODOLOGY.md` for how the anomaly detector works and why it uses a 30-reading window.
 
 ## Project structure
 
