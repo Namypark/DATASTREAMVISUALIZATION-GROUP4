@@ -55,6 +55,18 @@ uv run jupyter lab
 Then open `DataStreamVisualization_Workshop.ipynb` and run it top to bottom. Start Jupyter from the
 project root — the notebook resolves its paths relative to the working directory.
 
+**A full run takes about 80 seconds**, 60 of which is Step 2 streaming at its 2-second interval.
+
+To check it runs cleanly without opening Jupyter:
+
+```bash
+uv run python -m nbconvert --to notebook --execute \
+  DataStreamVisualization_Workshop.ipynb --output-dir /tmp/check
+```
+
+It writes the executed copy to `/tmp/check` and leaves your version untouched. Any cell that raises
+stops the run and reports the error.
+
 ### Alternative: pip instead of uv
 
 ```bash
@@ -145,9 +157,34 @@ database layer. It runs independently of the notebook:
 uv run python src/web_ui/web_ui_interface.py
 ```
 
-Then open <http://127.0.0.1:8050/>. It replays stored readings from the same starting point as the
-notebook's Step 2, one reading every 2 seconds, in the same colours — so a joint looks the same in
-both views.
+Then open <http://127.0.0.1:8050/>. Stop it with `Ctrl+C`.
+
+It replays stored readings from the same starting point as the notebook's Step 2, one reading every
+2 seconds, in the same colours — so a joint looks the same in both views.
+
+- The chart trims to the last 90 seconds, so it takes **90 seconds to fill**, then scrolls.
+- It keeps going for about **15.6 hours** before running out of readings, at which point the chart
+  simply stops updating.
+- **Live** restarts the replay from the beginning of the active window. **Bulk Load** drops the
+  whole dataset onto the chart at once and stops the polling.
+
+Don't leave it running while the notebook's Step 2 is streaming — both write to the same Neon
+database, and the free tier limits concurrent connections.
+
+## Rebuilding the database from scratch
+
+Only needed for a fresh Neon project. `migrate_schema.py` runs in four steps so the result can be
+checked before anything is replaced:
+
+```bash
+uv run python src/database-service/migrate_schema.py create   # build robot_readings_new
+uv run python src/database-service/migrate_schema.py load     # insert the 39,672 CSV rows
+uv run python src/database-service/migrate_schema.py verify   # compare counts and time span
+uv run python src/database-service/migrate_schema.py swap     # rename into place
+```
+
+Run `verify` before `swap` — it prints `MATCH` or `MISMATCH`. The swap keeps the previous table as
+`robot_readings_old` rather than dropping it.
 
 ## Notes on running Step 2
 
