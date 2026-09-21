@@ -58,7 +58,8 @@ uv run jupyter lab
 Then open `DataStreamVisualization_Workshop.ipynb` and run it top to bottom. Start Jupyter from the
 project root — the notebook resolves its paths relative to the working directory.
 
-**A full run takes about 80 seconds**, 60 of which is Step 2 streaming at its 2-second interval.
+**A full run takes about 2.5 minutes**, 2 minutes of which is Step 2 streaming 60 readings at its
+2-second interval.
 
 To check it runs cleanly without opening Jupyter:
 
@@ -88,7 +89,7 @@ uses syntax that older versions reject.
 |---|---|
 | `ModuleNotFoundError` on the first cell | Jupyter wasn't started from the project root |
 | `DATABASE_URL is missing` | No `.env` file, or it's not in the project root |
-| Step 2 takes about a minute | Expected — it streams at the specified 2-second interval |
+| Step 2 takes about 2 minutes | Expected — 60 readings at the specified 2-second interval |
 
 ## The problem
 
@@ -122,10 +123,15 @@ flags readings that suggest something is going wrong.
 - **No degradation is present.** Total active current moves from 28.5A to 28.3A across the window —
   0.6%, which is noise. 22.5 hours is far too short to reveal wear that develops over months. What
   this delivers is the instrument that would catch it under continuous collection.
-- **Ranking anomalies by z-score points at the wrong joint.** The score saturates at `(n-1)/√n`
-  (5.2947 for our 30-reading window), and it measures deviation relative to each joint's own
-  baseline. Ranked by current above baseline instead, axis 2 carries 7,219A of excess against axis
-  8's 1,534A.
+- **Ranking anomalies by flag count points at the wrong joint.** A z-score measures deviation
+  relative to each joint's own baseline, so axis 8 — which normally draws 0.3A — produces the most
+  flags (605) from 3–4A excursions, while axis 2's genuinely heavy 51A spikes produce 341. Ranked
+  by current above baseline instead, axis 2 carries 9,605A of excess against axis 8's 1,575A.
+  Maintenance attention belongs on axes 2 and 3.
+- **The detector needed correcting before its numbers were trustworthy.** The rolling window
+  originally included the reading being tested, which capped every score at `(n-1)/√n` = 5.2947, and
+  a baseline that spanned a three-hour stoppage was not "recent behaviour" in any useful sense.
+  Both versions produced plausible-looking output — see the Step 4 talking point.
 
 Full reasoning is in the notebook's talking points and findings cells.
 
@@ -162,13 +168,13 @@ uv run python src/web_ui/web_ui_interface.py
 
 Then open <http://127.0.0.1:8050/>. Stop it with `Ctrl+C`.
 
-It replays stored readings from the same starting point as the notebook's Step 2, one reading every
-2 seconds, in the same colours — so a joint looks the same in both views.
+It replays stored readings from the first one in the file, the same starting point as the notebook's
+Step 2, one reading every 2 seconds, in the same colours — so a joint looks the same in both views.
 
 - The chart trims to the last 90 seconds, so it takes **90 seconds to fill**, then scrolls.
-- It keeps going for about **15.6 hours** before running out of readings, at which point the chart
+- It keeps going for about **22 hours** before running out of readings, at which point the chart
   simply stops updating.
-- **Live** restarts the replay from the beginning of the active window. **Bulk Load** drops the
+- **Live** restarts the replay from the first reading. **Bulk Load** drops the
   whole dataset onto the chart at once and stops the polling.
 
 Don't leave it running while the notebook's Step 2 is streaming — both write to the same Neon
