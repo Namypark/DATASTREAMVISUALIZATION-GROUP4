@@ -14,3 +14,9 @@ wheels/
 
 # Local working notes
 src/web-ui/PLAN_EXEC.md
+
+# Working notes, not part of the submission
+METHODOLOGY.md
+
+# macOS
+.DS_Store
