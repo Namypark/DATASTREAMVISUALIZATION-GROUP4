@@ -2,7 +2,7 @@
 
 MVP scope: a single "Live Status" tab (see live_status.py). Run directly:
 
-    python src/web-ui/web-ui-interface.py
+    python src/web_ui/web_ui_interface.py
 """
 
 from dash import Dash, html

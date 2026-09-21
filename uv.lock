@@ -516,6 +516,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "dash" },
     { name = "ipykernel" },
+    { name = "ipython" },
     { name = "jupyter" },
     { name = "matplotlib" },
     { name = "numpy" },
@@ -530,6 +531,7 @@ dependencies = [
 requires-dist = [
     { name = "dash", specifier = ">=2.18.0" },
     { name = "ipykernel", specifier = ">=7.3.0" },
+    { name = "ipython", specifier = ">=9.17.1" },
     { name = "jupyter", specifier = ">=1.1.1" },
     { name = "matplotlib", specifier = ">=3.11.2" },
     { name = "numpy", specifier = ">=2.5.3" },

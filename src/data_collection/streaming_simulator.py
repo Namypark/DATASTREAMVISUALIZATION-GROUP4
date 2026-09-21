@@ -83,11 +83,15 @@ class StreamingSimulator:
         """Load the complete dataset without playback delays."""
         source = self.csv_path if csv_path is None else Path(csv_path)
         data = self._read_csv(source)
-        normalized = pd.DataFrame(
-            [self._to_record(row) for _, row in data.iterrows()]
-        )
+        normalized = pd.DataFrame([self._to_record(row) for _, row in data.iterrows()])
 
         if on_record is not None:
             for record in normalized.to_dict(orient="records"):
                 on_record(record)
         return normalized
+
+    def seek(self, index: int) -> None:
+        """Jump the replay position to a specific reading."""
+        if not 0 <= index < len(self._data):
+            raise IndexError(f"index must be between 0 and {len(self._data) - 1}")
+        self._position = index
