@@ -8,11 +8,24 @@ from dash.exceptions import PreventUpdate
 import db
 
 AXIS_COLUMNS = [f"axis_{i}" for i in range(1, 9)]
+# Same validated palette, in the same axis order, as the notebook. Each joint keeps
+# one colour across both views so nobody has to re-learn them. These eight were
+# checked for colourblind separation; plotly's defaults were not.
 AXIS_COLORS = [
-    "#1f77b4", "#2ca02c", "#ff7f0e", "#d62728",
-    "#9467bd", "#17becf", "#2ecc71", "#e377c2",
+    "#2a78d6",  # axis_1 blue
+    "#eb6834",  # axis_2 orange
+    "#1baf7a",  # axis_3 aqua
+    "#eda100",  # axis_4 yellow
+    "#e87ba4",  # axis_5 magenta
+    "#008300",  # axis_6 green
+    "#4a3aa7",  # axis_7 violet
+    "#e34948",  # axis_8 red
 ]
-POLL_INTERVAL_MS = 1500
+
+# Poll every 2 seconds, matching the reading interval the workshop specifies.
+# Each poll takes the next batch of readings, the way a real dashboard picks up
+# whatever has landed since it last looked.
+POLL_INTERVAL_MS = 2000
 ROLLING_WINDOW_SECONDS = 90
 
 layout = html.Div(

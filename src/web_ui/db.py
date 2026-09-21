@@ -41,8 +41,14 @@ __all__ = [
 ]
 
 _replay_df: pd.DataFrame | None = None
-_cursor = 0
+
+# The recording opens during an idle stretch, so replaying from row 0 shows a flat
+# line at zero. Start where the notebook's Step 2 demo starts, so both views show
+# the same window of the robot actually working.
+START_AT_READING = 11_604
 BATCH_SIZE = 5
+
+_cursor = START_AT_READING
 
 
 def fetch_next_batch(batch_size: int = BATCH_SIZE) -> pd.DataFrame:
@@ -59,6 +65,6 @@ def fetch_next_batch(batch_size: int = BATCH_SIZE) -> pd.DataFrame:
 
 
 def reset_cursor() -> None:
-    """Restart the replay from the first stored reading."""
+    """Restart the replay from the start of the active window."""
     global _cursor
-    _cursor = 0
+    _cursor = START_AT_READING
