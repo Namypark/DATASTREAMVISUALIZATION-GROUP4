@@ -28,16 +28,45 @@ AXIS_COLORS = [
 POLL_INTERVAL_MS = 2000
 ROLLING_WINDOW_SECONDS = 90
 
+# Whole-shift view is bucketed to this before it reaches the browser. Unaggregated,
+# the full table is a 10 MB payload and 317,376 plotted points, which locks the tab.
+BULK_BUCKET = "1min"
+
+SURFACE = "#fcfcfb"
+INK = "#0b0b0b"
+INK_MUTED = "#52514e"
+GRID = "#d8d7d2"
+
+_BUTTON = {
+    "padding": "7px 16px", "marginRight": "8px", "border": f"1px solid {GRID}",
+    "borderRadius": "6px", "background": "#ffffff", "color": INK,
+    "fontSize": "14px", "cursor": "pointer",
+}
+
 layout = html.Div(
     [
-        html.H3("Realtime Current (Amps, stacked)"),
-        html.Button("Live", id="live-button", n_clicks=0),
-        html.Button("Bulk Load (debug)", id="bulk-load-button", n_clicks=0),
-        html.Span(id="bulk-load-status", style={"marginLeft": "12px", "color": "#666"}),
-        dcc.Graph(id="live-status-chart"),
+        html.Div(
+            [
+                html.H3("Realtime Current (Amps, stacked)",
+                        style={"margin": "0 0 4px 0", "fontSize": "17px", "color": INK}),
+                html.Div("Each band is one joint; the top of the stack is total draw.",
+                         style={"color": INK_MUTED, "fontSize": "13px", "marginBottom": "14px"}),
+            ]
+        ),
+        html.Div(
+            [
+                html.Button("Live", id="live-button", n_clicks=0, style=_BUTTON),
+                html.Button("Whole shift", id="bulk-load-button", n_clicks=0, style=_BUTTON),
+                html.Span(id="bulk-load-status",
+                          style={"marginLeft": "6px", "color": INK_MUTED, "fontSize": "13px"}),
+            ],
+            style={"marginBottom": "10px"},
+        ),
+        dcc.Graph(id="live-status-chart", config={"displaylogo": False}),
         dcc.Interval(id="poll-interval", interval=POLL_INTERVAL_MS, n_intervals=0),
         dcc.Store(id="buffer-store", data=[]),
-    ]
+    ],
+    style={"maxWidth": "1180px", "margin": "0 auto", "padding": "0 20px 28px"},
 )
 
 
@@ -84,7 +113,14 @@ def _build_figure(df: pd.DataFrame) -> go.Figure:
         xaxis_title="Time",
         yaxis_title="Current (A)",
         legend_title="Axis",
-        margin=dict(l=40, r=20, t=20, b=40),
+        margin=dict(l=52, r=20, t=16, b=44),
+        paper_bgcolor=SURFACE,
+        plot_bgcolor=SURFACE,
+        font=dict(color=INK_MUTED, size=12),
+        hovermode="x unified",
+        xaxis=dict(showgrid=False, linecolor=GRID),
+        yaxis=dict(gridcolor=GRID, zerolinecolor=GRID),
+        legend=dict(bgcolor="rgba(0,0,0,0)"),
     )
     return fig
 
@@ -104,15 +140,30 @@ def register_callbacks(app: Dash) -> None:
         trigger = ctx.triggered_id
 
         if trigger == "bulk-load-button":
-            # Stop live refresh entirely and plot the whole CSV in one shot.
+            # Stop live refresh and show the whole shift at once.
+            #
+            # Sending every reading would be a 10 MB payload and 317,376 plotted
+            # points, which locks the browser. Bucket by minute first, keeping each
+            # minute's PEAK rather than its average: averaging hides the spikes
+            # inside a minute, and the spikes are what stress a joint.
             full_df = db.fetch_all()
-            status = f"Bulk loaded {len(full_df)} rows from the CSV."
-            return _to_records(full_df), status, True
+            bucketed = (
+                full_df.set_index("reading_time")[AXIS_COLUMNS]
+                .resample(BULK_BUCKET)
+                .max()
+                .fillna(0.0)
+                .reset_index()
+            )
+            status = (
+                f"Whole shift: {len(full_df):,} readings from the database, "
+                f"shown as {len(bucketed):,} per-minute peaks."
+            )
+            return _to_records(bucketed), status, True
 
         if trigger == "live-button":
             # Resume live refresh from a clean slate.
             db.reset_cursor()
-            return [], "Live refresh resumed.", False
+            return [], "Live: one reading every 2 seconds.", False
 
         # Interval tick: append newly-arrived rows, keep only the rolling window.
         new_rows = db.fetch_next_batch()
@@ -122,6 +173,8 @@ def register_callbacks(app: Dash) -> None:
         current = _from_records(current_records or [])
         combined = pd.concat([current, new_rows], ignore_index=True)
         combined = _trim_to_window(combined)
+        # Only the columns the chart draws; id and inserted_at are dead weight.
+        combined = combined[["reading_time", *AXIS_COLUMNS]]
         return _to_records(combined), "", False
 
     @app.callback(

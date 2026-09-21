@@ -2,20 +2,22 @@
 
 **CSCN8010 — Foundations of Machine Learning Frameworks · Group 4**
 
-| Member    | Track                                   |
-| --------- | --------------------------------------- |
-| Nnamdi    | Predictive analytics, integration, repo |
-| Davis     | Streaming simulator                     |
-| Carlos    | Dashboard and web app                   |
-| Rangeetha | Neon database and data access layer     |
+| Member | Track |
+|---|---|
+| Nnamdi | Predictive analytics, integration, repo |
+| Davis | Streaming simulator |
+| Carlos | Dashboard and web app |
+| Rangeetha | Neon database and data access layer |
+
+Student IDs are in [`docs/Group4_Team_Details.pdf`](docs/Group4_Team_Details.pdf).
 
 ## Setup
 
-| | |
-|---|---|
-| **Python** | 3.13 (pinned in `.python-version`; developed on 3.13.13) |
+|                     |                                                                              |
+| ------------------- | ---------------------------------------------------------------------------- |
+| **Python**          | 3.13 (pinned in `.python-version`; developed on 3.13.13)                     |
 | **Package manager** | [uv](https://docs.astral.sh/uv/) — installs the right Python version for you |
-| **Database** | Neon PostgreSQL (connection string via `.env`) |
+| **Database**        | Neon PostgreSQL (connection string via `.env`)                               |
 
 ### 1. Install uv
 
@@ -47,7 +49,7 @@ project root:
 DATABASE_URL=postgresql://<user>:<password>@<host>/<database>?sslmode=require
 ```
 
-Ask a team member for the value. **`.env` is git-ignored and must never be committed.**
+Ask a team member for the value. `.env` **is git-ignored and must never be committed.**
 
 ### 4. Run it
 
@@ -85,11 +87,11 @@ uses syntax that older versions reject.
 
 ### Troubleshooting
 
-| Problem | Cause |
-|---|---|
-| `ModuleNotFoundError` on the first cell | Jupyter wasn't started from the project root |
-| `DATABASE_URL is missing` | No `.env` file, or it's not in the project root |
-| Step 2 takes about 2 minutes | Expected — 60 readings at the specified 2-second interval |
+| Problem                                 | Cause                                                     |
+| --------------------------------------- | --------------------------------------------------------- |
+| `ModuleNotFoundError` on the first cell | Jupyter wasn't started from the project root              |
+| `DATABASE_URL is missing`               | No `.env` file, or it's not in the project root           |
+| Step 2 takes about 2 minutes            | Expected — 60 readings at the specified 2-second interval |
 
 ## The problem
 
@@ -168,7 +170,7 @@ database layer. It runs independently of the notebook:
 uv run python src/web_ui/web_ui_interface.py
 ```
 
-Then open <http://127.0.0.1:8050/>. Stop it with `Ctrl+C`.
+Then open [http://127.0.0.1:8050/](http://127.0.0.1:8050/). Stop it with `Ctrl+C`.
 
 It replays stored readings from the first one in the file, the same starting point as the notebook's
 Step 2, one reading every 2 seconds, in the same colours — so a joint looks the same in both views.
@@ -176,8 +178,8 @@ Step 2, one reading every 2 seconds, in the same colours — so a joint looks th
 - The chart trims to the last 90 seconds, so it takes **90 seconds to fill**, then scrolls.
 - It keeps going for about **22 hours** before running out of readings, at which point the chart
   simply stops updating.
-- **Live** restarts the replay from the first reading. **Bulk Load** drops the
-  whole dataset onto the chart at once and stops the polling.
+- **Live** restarts the replay from the first reading. **Whole shift** replaces the live view with
+  all 39,672 readings as per-minute peaks and stops the polling.
 
 Don't leave it running while the notebook's Step 2 is streaming — both write to the same Neon
 database, and the free tier limits concurrent connections.
