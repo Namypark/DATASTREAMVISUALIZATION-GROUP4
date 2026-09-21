@@ -11,8 +11,11 @@
 
 ## Setup
 
-Requires **Python 3.13**. The project is managed with [uv](https://docs.astral.sh/uv/), which
-installs the right Python version for you.
+| | |
+|---|---|
+| **Python** | 3.13 (pinned in `.python-version`; developed on 3.13.13) |
+| **Package manager** | [uv](https://docs.astral.sh/uv/) — installs the right Python version for you |
+| **Database** | Neon PostgreSQL (connection string via `.env`) |
 
 ### 1. Install uv
 

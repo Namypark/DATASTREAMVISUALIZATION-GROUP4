@@ -1,3 +1,5 @@
+# Python 3.13 required (see .python-version).
+# Generated from the resolved uv environment; pip fallback for `uv sync`.
 annotated-types==0.8.0
 anyio==4.15.1
 appnope==1.0.0
