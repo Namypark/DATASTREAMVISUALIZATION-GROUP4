@@ -46,7 +46,12 @@ _replay_df: pd.DataFrame | None = None
 # line at zero. Start where the notebook's Step 2 demo starts, so both views show
 # the same window of the robot actually working.
 START_AT_READING = 11_604
-BATCH_SIZE = 5
+
+# One reading per poll. With live_status polling every 2 seconds this advances at
+# exactly the rate the workshop specifies, and at the same rate as the notebook's
+# Step 2 demo, so both views move through the data together. Raise this to fill the
+# 90-second window faster at the cost of that alignment.
+BATCH_SIZE = 1
 
 _cursor = START_AT_READING
 
