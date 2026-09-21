@@ -42,10 +42,10 @@ __all__ = [
 
 _replay_df: pd.DataFrame | None = None
 
-# The recording opens during an idle stretch, so replaying from row 0 shows a flat
-# line at zero. Start where the notebook's Step 2 demo starts, so both views show
-# the same window of the robot actually working.
-START_AT_READING = 11_604
+# Replay from the first reading in the file, the same as the notebook's Step 2 demo.
+# The robot is stationary until reading 30, so the chart opens flat and then lifts as
+# it starts working.
+START_AT_READING = 0
 
 # One reading per poll. With live_status polling every 2 seconds this advances at
 # exactly the rate the workshop specifies, and at the same rate as the notebook's
