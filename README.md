@@ -2,12 +2,78 @@
 
 **CSCN8010 — Foundations of Machine Learning Frameworks · Group 4**
 
-| Member | Track |
+| Member    | Track                                   |
+| --------- | --------------------------------------- |
+| Nnamdi    | Predictive analytics, integration, repo |
+| Davis     | Streaming simulator                     |
+| Carlos    | Dashboard and web app                   |
+| Rangeetha | Neon database and data access layer     |
+
+## Setup
+
+Requires **Python 3.13**. The project is managed with [uv](https://docs.astral.sh/uv/), which
+installs the right Python version for you.
+
+### 1. Install uv
+
+```bash
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+### 2. Get the code and its dependencies
+
+```bash
+git clone https://github.com/Namypark/DATASTREAMVISUALIZATION-GROUP4.git
+cd DATASTREAMVISUALIZATION-GROUP4
+uv sync
+```
+
+`uv sync` reads `pyproject.toml` and `uv.lock`, creates a `.venv` with Python 3.13, and installs
+every pinned dependency.
+
+### 3. Add the database connection string
+
+The notebook reads from a shared Neon PostgreSQL database. Create a file called `.env` in the
+project root:
+
+```text
+DATABASE_URL=postgresql://<user>:<password>@<host>/<database>?sslmode=require
+```
+
+Ask a team member for the value. **`.env` is git-ignored and must never be committed.**
+
+### 4. Run it
+
+```bash
+uv run jupyter lab
+```
+
+Then open `DataStreamVisualization_Workshop.ipynb` and run it top to bottom. Start Jupyter from the
+project root — the notebook resolves its paths relative to the working directory.
+
+### Alternative: pip instead of uv
+
+```bash
+python3.13 -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+jupyter lab
+```
+
+`requirements.txt` holds the same pinned versions. Python 3.13 is required either way — the code
+uses syntax that older versions reject.
+
+### Troubleshooting
+
+| Problem | Cause |
 |---|---|
-| Namy | Predictive analytics, integration, repo |
-| Davis | Streaming simulator |
-| Carlos | Dashboard and web app |
-| Rangeetha | Neon database and data access layer |
+| `ModuleNotFoundError` on the first cell | Jupyter wasn't started from the project root |
+| `DATABASE_URL is missing` | No `.env` file, or it's not in the project root |
+| Step 2 takes about a minute | Expected — it streams at the specified 2-second interval |
 
 ## The problem
 
@@ -50,10 +116,10 @@ Full reasoning is in the notebook's talking points and findings cells.
 
 ## Notebooks
 
-| File | Contents |
-|---|---|
+| File                                     | Contents                                           |
+| ---------------------------------------- | -------------------------------------------------- |
 | `DataStreamVisualization_Workshop.ipynb` | Our submission — all four steps, code and write-up |
-| `instructor_material.ipynb` | The instructor's brief, kept for reference |
+| `instructor_material.ipynb`              | The instructor's brief, kept for reference         |
 
 ## Project structure
 
@@ -70,21 +136,20 @@ Full reasoning is in the notebook's talking points and findings cells.
 └── DataStreamVisualization_Workshop.ipynb
 ```
 
-## Running it
+## The standalone dashboard
 
-Requires Python 3.13 and a `DATABASE_URL` for the Neon database in a local `.env` file (never
-committed).
-
-```bash
-uv sync
-uv run jupyter lab      # then run DataStreamVisualization_Workshop.ipynb top to bottom
-```
-
-The standalone dashboard runs separately:
+Besides the charts inside the notebook, `src/web_ui/` holds a Dash web app built on the same
+database layer. It runs independently of the notebook:
 
 ```bash
 uv run python src/web_ui/web_ui_interface.py
 ```
+
+Then open <http://127.0.0.1:8050/>. It replays stored readings from the same starting point as the
+notebook's Step 2, one reading every 2 seconds, in the same colours — so a joint looks the same in
+both views.
+
+## Notes on running Step 2
 
 Step 2 streams at the specified 2-second interval, so that cell takes about a minute. It writes its
 demo readings to the shared table and deletes them again afterwards, so the notebook can be re-run

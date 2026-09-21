@@ -3,7 +3,7 @@
 **Use case:** Manufacturing Robot Predictive Maintenance
 **Team:** Namy, Davis, Carlos, Rangeetha
 **Deadline:** Monday, 2026-09-21
-**Repo:** <https://github.com/Namypark/DATASTREAMVISUALIZATION-GROUP4>
+**Repo:** [https://github.com/Namypark/DATASTREAMVISUALIZATION-GROUP4](https://github.com/Namypark/DATASTREAMVISUALIZATION-GROUP4)
 **Deliverable:** One completed Jupyter Notebook pushed to the repo above, plus an email to the instructor with the `.git` link.
 
 ---
@@ -24,11 +24,11 @@ Data source: `data/RMBR4-2_export_test.csv` — 39,672 data rows, one reading ro
 
 These findings come from profiling the actual CSV and **correct three assumptions** we made in the first draft of this plan. Build against these, not against the column headers.
 
-| First assumption | Verified reality |
-|---|---|
-| Traits include current and torque | **Only `current`** — all 39,672 rows. No torque data exists in this file. |
-| 14 axes of data | **Only axes 1–8 carry data.** Axes 9–14 are 100% null — an 8-axis robot logged in a 14-column export format. |
-| Continuous sampling | Two real collection gaps: **402s** (Oct 17 12:33) and **333s** (Oct 17 13:07). |
+| First assumption                  | Verified reality                                                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Traits include current and torque | **Only** `current` — all 39,672 rows. No torque data exists in this file.                                    |
+| 14 axes of data                   | **Only axes 1–8 carry data.** Axes 9–14 are 100% null — an 8-axis robot logged in a 14-column export format. |
+| Continuous sampling               | Two real collection gaps: **402s** (Oct 17 12:33) and **333s** (Oct 17 13:07).                               |
 
 **Shape of the dataset:**
 
@@ -38,12 +38,12 @@ These findings come from profiling the actual CSV and **correct three assumption
 
 **Key event — a ~3-hour production stoppage.** Idle percentage per hour:
 
-| Hour (UTC) | Idle % |
-|---|---|
-| Oct 17 16:00 | 99.8% |
-| Oct 18 03:00 | 95.4% |
-| Oct 18 04:00 | 100.0% |
-| Oct 18 05:00 | 99.6% |
+| Hour (UTC)      | Idle % |
+| --------------- | ------ |
+| Oct 17 16:00    | 99.8%  |
+| Oct 18 03:00    | 95.4%  |
+| Oct 18 04:00    | 100.0% |
+| Oct 18 05:00    | 99.6%  |
 | All other hours | 43–82% |
 
 The controller continued reporting every ~2 seconds throughout (~1,780 rows/hour), so this is **not a data outage — the robot was powered and polled but not moving.** Treat it as an availability event, not a health event.
@@ -56,12 +56,12 @@ The controller continued reporting every ~2 seconds throughout (~1,780 rows/hour
 
 Work is split by track, built against stubs in parallel, then integrated — nobody blocks on anybody else at the start.
 
-| Person | Track | Deliverable |
-|---|---|---|
-| **Rangeetha** | Database | Neon.tech Postgres project; `robot_readings` schema; `get_connection()`, `insert_reading()`, `fetch_all()` functions |
-| **Davis** | Streaming | `StreamingSimulator` OOP class (Steps 1–2 of the workshop spec): `nextDataPoint()`, configurable playback speed, bulk-load path |
-| **Carlos** | Dashboard | Matplotlib inline live-refresh chart (Step 2) + final summary chart (Additional Challenge) |
-| **Namy** | Predictive + integration | Rolling z-score anomaly module (Steps 3–4), markdown talking points, repo ownership, merging PRs |
+| Person        | Track                    | Deliverable                                                                                                                     |
+| ------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| **Rangeetha** | Database                 | Neon.tech Postgres project; `robot_readings` schema; `get_connection()`, `insert_reading()`, `fetch_all()` functions            |
+| **Davis**     | Streaming                | `StreamingSimulator` OOP class (Steps 1–2 of the workshop spec): `nextDataPoint()`, configurable playback speed, bulk-load path |
+| **Carlos**    | Dashboard                | Matplotlib inline live-refresh chart (Step 2) + final summary chart (Additional Challenge)                                      |
+| **Nnamdi**    | Predictive + integration | Rolling z-score anomaly module (Steps 3–4), markdown talking points, repo ownership, merging PRs                                |
 
 Davis, Carlos, and Namy each start by building against a **stub interface** (a no-op DB call, or fake/random data) so nothing is blocked on Rangeetha's Neon setup landing first.
 
@@ -69,12 +69,12 @@ Davis, Carlos, and Namy each start by building against a **stub interface** (a n
 
 ## 3. Timeline
 
-| When | Activity |
-|---|---|
-| **Day 1 (kickoff)** | Confirm roles. Rangeetha starts the Neon.tech project and shares schema + connection details with the team as soon as possible. Davis, Carlos, and Namy start building against stubs in parallel, each on their own branch. |
-| **Day 2 (integration)** | Swap stubs for real pieces: Davis's `StreamingSimulator` calls Rangeetha's `insert_reading()`; Carlos's dashboard consumes Davis's live buffer; Namy wires the predictive module to `fetch_all()`. Open PRs into `main` as each piece is ready; Namy reviews and merges. |
-| **Day 3 (full run-through + polish)** | Run the notebook top to bottom, run the full CSV backfill, produce the summary chart (Additional Challenge), finish Step 3/4 markdown (anomalies + Maintenance Notification alerts), fill in "team talking point" cells. Fix anything integration broke. |
-| **Day 4 (submission day, before Monday deadline)** | Final fresh run of the whole notebook top-to-bottom to confirm it executes cleanly, final merge to `main`, email the instructor the `.git` link. |
+| When                                               | Activity                                                                                                                                                                                                                                                                 |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Day 1 (kickoff)**                                | Confirm roles. Rangeetha starts the Neon.tech project and shares schema + connection details with the team as soon as possible. Davis, Carlos, and Namy start building against stubs in parallel, each on their own branch.                                              |
+| **Day 2 (integration)**                            | Swap stubs for real pieces: Davis's `StreamingSimulator` calls Rangeetha's `insert_reading()`; Carlos's dashboard consumes Davis's live buffer; Namy wires the predictive module to `fetch_all()`. Open PRs into `main` as each piece is ready; Namy reviews and merges. |
+| **Day 3 (full run-through + polish)**              | Run the notebook top to bottom, run the full CSV backfill, produce the summary chart (Additional Challenge), finish Step 3/4 markdown (anomalies + Maintenance Notification alerts), fill in "team talking point" cells. Fix anything integration broke.                 |
+| **Day 4 (submission day, before Monday deadline)** | Final fresh run of the whole notebook top-to-bottom to confirm it executes cleanly, final merge to `main`, email the instructor the `.git` link.                                                                                                                         |
 
 No hard clock per phase — each day is a checkpoint so no one is stuck waiting until the last minute.
 
@@ -104,7 +104,6 @@ No hard clock per phase — each day is a checkpoint so no one is stuck waiting 
 - `StreamingSimulator(csv_path, interval=2.0)` — the default **is** the instruction ("a single reading every 2 seconds"). Pass a smaller `interval` only to speed up testing.
 - `nextDataPoint()` — returns the next row as a dict/Series, advances an internal pointer, signals end-of-file at exhaustion.
 - `run(n_steps, on_tick)` — drives `n_steps` calls spaced `interval` seconds apart, invoking a callback each tick (the callback does the DB insert + chart update).
-
 - `bulk_load(csv_path)` — separate no-delay path for the full-dataset backfill used by the summary chart and predictive module.
 
 > **Why a slice, not the whole file:** 39,672 readings × 2s = **22 hours**, which is the real span of the data. The notebook streams ~30 readings live (about a minute) to demonstrate the mechanism at the specified interval; the full dataset reaches the database through the separate bulk load. State this explicitly in the Step 2 markdown.
@@ -116,7 +115,7 @@ No hard clock per phase — each day is a checkpoint so no one is stuck waiting 
 
 ### 4.4 Predictive module — Namy
 
-Two layers: point anomalies (spikes) and trend (wear). Only the second is genuinely *predictive*.
+Two layers: point anomalies (spikes) and trend (wear). Only the second is genuinely _predictive_.
 
 **Layer 1 — point anomalies, computed over active samples only.**
 
@@ -124,10 +123,10 @@ A rolling z-score on the raw column **does not work on this dataset** and must n
 
 Measured on Axis #2:
 
-| Method | Readings flagged |
-|---|---|
-| Rolling z on raw column | **780** — dominated by idle→active transitions (false alarms) |
-| Rolling z on **active samples only** | **242** of 13,850 active rows (1.7%) |
+| Method                               | Readings flagged                                              |
+| ------------------------------------ | ------------------------------------------------------------- |
+| Rolling z on raw column              | **780** — dominated by idle→active transitions (false alarms) |
+| Rolling z on **active samples only** | **242** of 13,850 active rows (1.7%)                          |
 
 The corrected implementation filters first:
 
@@ -152,13 +151,13 @@ Wear failures (the torque tube in the problem statement) show up as the same mot
 
 **Step 4 alert classification.** The markdown discussion should separate alert classes rather than treating every anomaly as a fault:
 
-| Class | Evidence in this dataset | Robot unhealthy? |
-|---|---|---|
-| Availability | ~3-hour stoppage Oct 18 03:00–06:00; 95–100% idle with the controller still reporting | No — production stopped, robot is fine |
-| Load spike | 242 readings above 3σ on Axis #2 (43–47A vs 10.1A active mean) | Not yet — transient, no supporting trend |
-| Wear | Not present; baseline is flat | No signal in this window |
+| Class        | Evidence in this dataset                                                              | Robot unhealthy?                         |
+| ------------ | ------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Availability | ~3-hour stoppage Oct 18 03:00–06:00; 95–100% idle with the controller still reporting | No — production stopped, robot is fine   |
+| Load spike   | 242 readings above 3σ on Axis #2 (43–47A vs 10.1A active mean)                        | Not yet — transient, no supporting trend |
+| Wear         | Not present; baseline is flat                                                         | No signal in this window                 |
 
-The defensible conclusion is that **no maintenance notification is warranted from this data**, paired with an explicit definition of the trigger that would warrant one (e.g. hourly active-mean for Axis #2 rising more than 15% above its 7-day baseline). Specifying when *not* to alert is what keeps the tool credible.
+The defensible conclusion is that **no maintenance notification is warranted from this data**, paired with an explicit definition of the trigger that would warrant one (e.g. hourly active-mean for Axis #2 rising more than 15% above its 7-day baseline). Specifying when _not_ to alert is what keeps the tool credible.
 
 ---
 
@@ -190,7 +189,7 @@ Note: the demo slice and the full backfill both go through `insert_reading()`, s
 
 ## 6. Git Workflow
 
-The repo is already live and public at **<https://github.com/Namypark/DATASTREAMVISUALIZATION-GROUP4>**. Namy owns it and will send collaborator invites — accept the email invite when it arrives, then clone:
+The repo is already live and public at **[https://github.com/Namypark/DATASTREAMVISUALIZATION-GROUP4](https://github.com/Namypark/DATASTREAMVISUALIZATION-GROUP4)**. Namy owns it and will send collaborator invites — accept the email invite when it arrives, then clone:
 
 ```bash
 git clone https://github.com/Namypark/DATASTREAMVISUALIZATION-GROUP4.git
