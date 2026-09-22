@@ -65,6 +65,10 @@ layout = html.Div(
         dcc.Graph(id="live-status-chart", config={"displaylogo": False}),
         dcc.Interval(id="poll-interval", interval=POLL_INTERVAL_MS, n_intervals=0),
         dcc.Store(id="buffer-store", data=[]),
+        # Which view is on screen. Without this, a poll that fired while the
+        # whole-shift query was still running lands afterwards and quietly
+        # replaces it with the 90-second live window.
+        dcc.Store(id="view-mode", data="live"),
     ],
     style={"maxWidth": "1180px", "margin": "0 auto", "padding": "0 20px 28px"},
 )
@@ -130,13 +134,15 @@ def register_callbacks(app: Dash) -> None:
         Output("buffer-store", "data"),
         Output("bulk-load-status", "children"),
         Output("poll-interval", "disabled"),
+        Output("view-mode", "data"),
         Input("poll-interval", "n_intervals"),
         Input("live-button", "n_clicks"),
         Input("bulk-load-button", "n_clicks"),
         State("buffer-store", "data"),
+        State("view-mode", "data"),
         prevent_initial_call=True,
     )
-    def update_buffer(_n_intervals, _live_clicks, _bulk_clicks, current_records):
+    def update_buffer(_n_intervals, _live_clicks, _bulk_clicks, current_records, view_mode):
         trigger = ctx.triggered_id
 
         if trigger == "bulk-load-button":
@@ -146,7 +152,7 @@ def register_callbacks(app: Dash) -> None:
             # points, which locks the browser. Bucket by minute first, keeping each
             # minute's PEAK rather than its average: averaging hides the spikes
             # inside a minute, and the spikes are what stress a joint.
-            full_df = db.fetch_all()
+            full_df = db.cached_all()
             bucketed = (
                 full_df.set_index("reading_time")[AXIS_COLUMNS]
                 .resample(BULK_BUCKET)
@@ -158,14 +164,18 @@ def register_callbacks(app: Dash) -> None:
                 f"Whole shift: {len(full_df):,} readings from the database, "
                 f"shown as {len(bucketed):,} per-minute peaks."
             )
-            return _to_records(bucketed), status, True
+            return _to_records(bucketed), status, True, "shift"
 
         if trigger == "live-button":
             # Resume live refresh from a clean slate.
             db.reset_cursor()
-            return [], "Live: one reading every 2 seconds.", False
+            return [], "Live: one reading every 2 seconds.", False, "live"
 
-        # Interval tick: append newly-arrived rows, keep only the rolling window.
+        # Interval tick. If the whole-shift view is up, leave it alone: this tick may
+        # have been queued before the button disabled polling.
+        if view_mode == "shift":
+            raise PreventUpdate
+
         new_rows = db.fetch_next_batch()
         if new_rows.empty:
             raise PreventUpdate
@@ -175,7 +185,7 @@ def register_callbacks(app: Dash) -> None:
         combined = _trim_to_window(combined)
         # Only the columns the chart draws; id and inserted_at are dead weight.
         combined = combined[["reading_time", *AXIS_COLUMNS]]
-        return _to_records(combined), "", False
+        return _to_records(combined), "", False, "live"
 
     @app.callback(
         Output("live-status-chart", "figure"),

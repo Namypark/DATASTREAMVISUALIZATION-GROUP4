@@ -36,6 +36,7 @@ __all__ = [
     "insert_reading",
     "fetch_all",
     "fetch_since",
+    "cached_all",
     "fetch_next_batch",
     "reset_cursor",
 ]
@@ -56,12 +57,23 @@ BATCH_SIZE = 1
 _cursor = START_AT_READING
 
 
-def fetch_next_batch(batch_size: int = BATCH_SIZE) -> pd.DataFrame:
-    """Return the next slice of stored readings, advancing a replay cursor."""
-    global _replay_df, _cursor
+def cached_all() -> pd.DataFrame:
+    """The whole table, read once and reused.
 
+    fetch_all() is a ~1.9 second round trip to Neon. The dashboard needs the same
+    rows on every poll and every whole-shift click, so read them once.
+    """
+    global _replay_df
     if _replay_df is None:
         _replay_df = fetch_all()
+    return _replay_df
+
+
+def fetch_next_batch(batch_size: int = BATCH_SIZE) -> pd.DataFrame:
+    """Return the next slice of stored readings, advancing a replay cursor."""
+    global _cursor
+
+    cached_all()
 
     end = min(_cursor + batch_size, len(_replay_df))
     batch = _replay_df.iloc[_cursor:end].copy()
