@@ -137,14 +137,9 @@ flags readings that suggest something is going wrong.
 
 Full reasoning is in the notebook's talking points and findings cells.
 
-## Notebooks
+## Notebook
 
-| File                                     | Contents                                           |
-| ---------------------------------------- | -------------------------------------------------- |
-| `DataStreamVisualization_Workshop.ipynb` | Our submission — all four steps, code and write-up |
-| `instructor_material.ipynb`              | The instructor's brief, kept for reference         |
-
-See `METHODOLOGY.md` for how the anomaly detector works and why it uses a 30-reading window.
+`DataStreamVisualization_Workshop.ipynb` is the submission — all four steps, code and write-up.
 
 ## Project structure
 

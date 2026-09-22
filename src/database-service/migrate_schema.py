@@ -1,4 +1,4 @@
-"""One-off migration: rebuild robot_readings with the schema from TEAM_PLAN.md.
+"""One-off migration: rebuild robot_readings with an explicit schema.
 
 Run one step at a time, checking the output before moving on:
 
